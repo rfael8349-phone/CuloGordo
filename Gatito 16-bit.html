@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Gatito 16-bit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#d9cdf5;--fg:#2a2140;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241a3a;--fg:#f2e8ff}}
+:root[data-theme="dark"]{--bg:#241a3a;--fg:#f2e8ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Courier New",monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+h1{font-size:1rem;letter-spacing:3px;margin:12px 0 2px}
+#t{font-size:.75rem;opacity:.8;margin-bottom:10px}
+canvas{width:min(92vw,400px);aspect-ratio:128/144;image-rendering:pixelated;border:4px solid #2a2140;border-radius:6px;box-shadow:0 0 0 4px #e8903c,0 8px 0 4px #0004;touch-action:none;background:#000}
+#hud,#bt{width:min(92vw,400px);display:grid;grid-template-columns:repeat(5,1fr);gap:6px}#bt{grid-template-columns:repeat(4,1fr)}
+#hud{margin:16px 0 8px}
+.m{font-size:.9rem;text-align:center}.bar{height:8px;background:#0003;border:2px solid #2a2140;margin-top:2px}.bar i{display:block;height:100%;width:50%}
+button{font:inherit;font-size:.68rem;padding:8px 0;border:3px solid #2a2140;background:#f6bd6b;color:#2a2140;box-shadow:0 3px 0 #2a2140;cursor:pointer;line-height:1.3}
+button.on{background:#8fe08f}button:active{transform:translateY(3px);box-shadow:none}
+.h{font-size:.68rem;opacity:.7;text-align:center;margin:12px 16px 18px;max-width:380px}
+</style></head><body>
+<h1>★ GATITO 16-BIT ★</h1><div id="t"></div>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<div id="bt">
+<button id="bF">🍗<br>Comer</button><button id="bB">✨<br>Peinar</button><button id="bL">🚽<br>Arenero</button><button id="bS">🛏<br>Dormir</button><button id="bT">🌓<br>Auto</button><button id="bR">🔄<br>Rodar</button><button id="bO">👃<br>Oler</button><button id="bC">📢<br>Llamar</button></div>
+<div class="h">Toca el suelo para que camine · toca su cuerpo para mimarlo · cuidado con la cara (a veces te esquiva o pasa de ti) · palmea su trasero bajo tu propio riesgo · de noche (21h–7h) se va a dormir</div>
+<script>
+const $=s=>document.querySelector(s),W=128,H=144,cv=$('#c'),X=cv.getContext('2d');cv.width=W;cv.height=H;
+const f=(c,x,y,w,h)=>{X.fillStyle=c;X.fillRect(Math.round(x),Math.round(y),w,h)};
+const K={o:'#4a2410',a:'#e8903c',b:'#f6bd6b',d:'#c2611c',w:'#fff1dc',g:'#8fc23a',p:'#ff8fa8'};
+const S={food:70,love:50,clean:60,litter:80,energy:80};
+const cat={x:60,y:110,dir:1,state:'idle',goal:null,timer:0,bub:0,emoji:'',cool:3,noSleep:0,ign:0,spd:.9};let item=null;const TS=['eat','litter','happy','sniff','flehmen','groom','yawn','stretch','knead','roll','startle'];
+let tick=0,bowl=false,brush=false,tmode=0,ptr=null,down=false,P=[],ctx=null;
+// audio
+function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
+function beep(fr,d,v=.07,sl=0,dl=0){const c=ac();if(!c)return;const t=c.currentTime+dl,o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.setValueAtTime(fr,t);if(sl)o.frequency.linearRampToValueAtTime(fr+sl,t+d);g.gain.setValueAtTime(v,t);g.gain.linearRampToValueAtTime(0,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d)}
+const meow=()=>{beep(520,.12,.07,300);beep(820,.2,.07,-380,.12)};
+const purr=()=>{for(let i=0;i<6;i++)beep(70,.07,.09,0,i*.1)};
+// cat sprite
+let CX,CY,CD;
+const r=(x,y,w,h,c)=>{X.fillStyle=c;X.fillRect(CD>0?CX+x:CX+24-x-w,CY+y,w,h)};
+const fill=(rs,c)=>rs.forEach(a=>r(a[0],a[1],a[2],a[3],c));
+const out=rs=>rs.forEach(a=>r(a[0]-1,a[1]-1,a[2]+2,a[3]+2,K.o));
+function sit(eye,tw,op,pw){const rs=[[4,11,10,11],[3,15,5,7],[10,16,5,6],[11,3,10,9],[11,0,3,4],[18,0,3,4],[0,16+tw,4,3],[0,12+tw,3,5]];
+out(rs);fill(rs,K.a);fill([[12,12,3,9],[18,8,3,3],[10,21,5,1]],K.w);
+fill([[5,12,1,3],[8,12,1,3],[5,17,1,3],[14,3,1,2],[16,3,1,2],[0,14+tw,3,1]],K.d);fill([[12,1,1,2],[19,1,1,2]],K.p);
+if(eye)r(17,7,3,1,K.o);else{r(17,6,3,3,K.g);r(18,6,1,3,K.o)}r(20,8,1,1,K.p);if(op){r(19,9,2,2,K.o);r(19,10,2,1,K.p)}if(pw){out([[14,9,3,6]]);fill([[14,9,3,6]],K.a);r(14,13,3,2,K.w)}}
+function walk(fr,hy,eye){const L=fr?[[4,16,3,6],[13,16,3,6]]:[[7,16,3,6],[11,16,3,6]];
+const rs=[[3,8,13,8],[14,3+hy,9,9],[15,hy,3,4],[20,hy,3,4],[0,5,3,2],[0,3,2,3],...L];
+out(rs);fill(rs,K.a);fill([[13,11,3,5],[20,7+hy,3,3]],K.w);
+fill([[5,9,1,3],[8,9,1,3],[11,9,1,3],[16,4+hy,1,2],[18,4+hy,1,2]],K.d);fill([[16,1+hy,1,2],[21,1+hy,1,2]],K.p);
+if(eye)r(18,6+hy,2,1,K.o);else{r(18,5+hy,2,2,K.g);r(19,5+hy,1,2,K.o)}r(22,7+hy,1,1,K.p)}
+function slp(b){const rs=[[2,13+b,19,9-b],[13,14,8,8],[14,12,2,3],[19,12,2,3],[0,19,10,3]];
+out(rs);fill(rs,K.a);fill([[14,19,6,3]],K.w);fill([[5,14+b,1,3],[8,14+b,1,3],[11,14+b,1,3],[2,20,8,1]],K.d);r(17,17,3,1,K.o);r(21,19,1,1,K.p)}
+function back(fr){const rs=[[2,12,18,9],[18,10,6,7],[18,8,2,3],[22,8,2,3],[0,16,3,2],[5,5,3,7],[9,5,3,7],[13,5+fr,3,7]];out(rs);fill(rs,K.a);fill([[4,13,13,7],[5,5,3,2],[9,5,3,2],[13,5+fr,3,2]],K.w);r(20,12,2,1,K.o);r(23,13,1,1,K.p)}
+function drawCat(){const c=cat,s=c.state,t=tick;CX=Math.round(c.x-12);CD=c.dir;CY=Math.round(c.y-23);
+f('rgba(0,0,0,.22)',c.x-10,c.y-1,20,3);
+if(s==='sleep'){CY=Math.round(c.y-22);slp((t>>4)&1)}
+else if(s==='walk')walk((t>>(c.spd>1?2:3))&1,0,0);
+else if(s==='eat')walk(0,(t>>3)&1?5:6,0);else if(s==='sniff')walk(0,(t>>2)&1?6:7,0);else if(s==='roll'){CD=(t/14|0)%2?1:-1;CY+=2;back((t>>3)&1)}else if(s==='flehmen'){CY+=(t>>4)&1;sit(1,0,1,0)}else if(s==='groom')sit(1,0,(t>>3)&1,1);else if(s==='yawn')sit(1,0,1,0);else if(s==='stretch')walk(0,7,1);else if(s==='knead'){CY+=(t>>3)&1;sit(0,0,0,0)}else if(s==='startle'){CY-=Math.round(Math.sin(c.timer/18*Math.PI)*5);sit(0,1,1,0)}
+else if(s==='litter'){CY+=2;sit(t%30<20,0)}
+else if(s==='happy')sit(1,(t>>3)&1);
+else sit(t%120<4||t%400<30||Date.now()<c.ign,(t>>4)&1)}
+// room
+const night=()=>{const h=hour();return h>=21||h<7};
+const hour=()=>tmode==1?12:tmode==2?23:new Date().getHours();
+function room(n){f('#e8c690',0,0,W,66);f('#d4a76a',0,58,W,8);f('#c07a3e',0,66,W,H-66);
+for(let y=68,i=0;y<H;y+=10,i++){f('#a8672f',0,y,W,1);for(let x=(i%2)*16;x<W;x+=32)f('#a8672f',x,y,1,10)}
+f('#fff8e8',6,6,44,38);f(n?'#1c2358':'#74c8ff',9,9,38,32);
+if(n){[[14,14],[30,18],[22,30],[40,12],[38,34]].forEach(p=>f('#fff',p[0],p[1],1,1));f('#fff3a8',36,16,5,5);f('#1c2358',38,16,3,4)}
+else{f('#fff',14,16,10,4);f('#fff',17,14,8,3);f('#ffe14a',36,13,6,6)}
+f('#fff8e8',27,9,2,32);f('#fff8e8',9,24,38,2);
+f('#8a4b2a',78,12,30,26);f('#ffe9b8',80,14,26,22);
+[[89,25,8,6],[85,21,3,4],[89,18,3,4],[94,18,3,4],[98,21,3,4]].forEach(a=>f('#e8903c',...a));
+f('#2d5f8a',7,123,18,9);f('#4aa3df',8,124,16,7);if(bowl)f('#8b4a1e',9,122,14,3);
+f('#6e2a3a',77,115,44,20);f('#b84a5f',78,116,42,18);f('#e07a8e',82,119,34,11)}
+const boxB=()=>{f('#6b4f22',85,81,36,24);f('#d9b97a',86,82,34,22);f('#f3e2a8',88,84,30,8);[[92,87],[100,89],[108,86],[112,90]].forEach(p=>f('#cfb36e',p[0],p[1],2,1))};
+const boxF=()=>{f('#d9b97a',86,96,34,8);f('#b8964f',86,96,34,1);f('#6b4f22',85,104,36,1)};
+// particles & bubble
+const HB=['01010','11111','11111','01110','00100'];
+function heart(x,y){HB.forEach((row,j)=>{for(let i=0;i<5;i++)if(row[i]==='1')f('#ff3d6e',x+i,y+j,1,1)})}
+const add=(x,y,k,vy=-.5)=>P.push({x,y,vy,l:50,k});
+function draw(){const n=night();room(n);if(item){X.font='11px sans-serif';X.fillStyle='#000';X.fillText(item.e,item.x-5,item.y)}
+if(cat.y>=104){boxB();boxF();drawCat()}else{boxB();drawCat();boxF()}
+P.forEach(p=>{if(p.k==='h')heart(p.x,p.y);else if(p.k==='s'){f('#fff',p.x,p.y-1,1,3);f('#fff',p.x-1,p.y,3,1)}else{X.fillStyle='#fff';X.font='bold 8px monospace';X.fillText(p.t||'z',p.x,p.y)}});
+if(n)f('rgba(20,20,90,.35)',0,0,W,H);
+if(cat.bub>0){const bx=Math.round(cat.x-8),by=Math.round(cat.y-42);f('#2a2140',bx-1,by-1,18,16);f('#fff',bx,by,16,14);f('#2a2140',bx+5,by+14,5,3);f('#fff',bx+6,by+14,3,2);X.font='9px sans-serif';X.fillStyle='#000';X.fillText(cat.emoji,bx+3,by+11)}
+if(brush&&ptr){f('#2a2140',ptr.x-1,ptr.y-1,9,6);f('#c28a4a',ptr.x,ptr.y,7,2);f('#fff',ptr.x,ptr.y+2,7,2)}}
+// logic
+function goto(x,y,then,d){const c=cat;c.goal={x:Math.max(14,Math.min(114,x)),y:Math.max(80,Math.min(138,y)),then,d};c.state='walk'}
+const ask=e=>{cat.emoji=e;cat.bub=90;cat.cool=8;meow()};
+const say=(e,n=70)=>{cat.emoji=e;cat.bub=n};
+const txt=(x,y,t)=>P.push({x,y,vy:-.3,l:60,k:'t',t});
+const GOOD=['idle','walk','happy','groom','yawn','stretch'];
+function touch(p){const c=cat,rel=(p.x-c.x)*c.dir;if(Date.now()<c.ign){say('😒',40);return}
+if(rel>-2&&p.y<c.y-12&&GOOD.includes(c.state))face();else if(rel<0&&p.y>c.y-15&&c.state!=='roll')butt(p);else pet()}
+function face(){const c=cat,rn=Math.random();
+if(rn<S.love/160+.15){c.state='happy';c.timer=60;S.love=Math.min(100,S.love+6);purr();add(c.x,c.y-28,'h');add(c.x+7,c.y-30,'h');say('😽');hud()}
+else if(rn<.62){say('🙄');c.spd=1.6;goto(c.x+(c.x>ptr.x?20:-20),c.y+((Math.random()*8)|0),null)}
+else{c.ign=Date.now()+8000;c.dir=-c.dir;c.state='idle';say('😑',90);txt(c.x-6,c.y-30,'...')}}
+function butt(p){const c=cat;if(c.state==='sleep'){pet();return}
+txt(p.x-10,p.y-6,'PLAF!');add(p.x,p.y-4,'s',-.2);beep(180,.08,.1,-80);meow();S.love=Math.max(0,S.love-2);c.state='startle';c.timer=18;say('😾',80);hud()}
+function callName(){ac();const c=cat;txt(24,36,'¡CULOGORDO!');say('👂',50);
+setTimeout(()=>{const q=Math.random();
+if(c.state==='sleep'){if(q<.7)return;c.state='idle';c.noSleep=Date.now()+30000;say('😾');meow();return}
+if(!['idle','walk','happy'].includes(c.state))return;
+if(q<.45){c.ign=Date.now()+8000;c.dir=-c.dir;c.state='idle';say('😑',90);txt(c.x-6,c.y-30,'...')}
+else if(q<.8){say('😾',60);meow();c.spd=1.6;goto(60,134,null)}
+else{say('😽',90);beep(900,.1,.05)}},900)}
+function smell(){ac();const es=['🧦','🐟','🌸','🧅','🥾'];item={e:es[Math.random()*5|0],x:30+Math.random()*70,y:100+Math.random()*26};txt(item.x-6,item.y-14,'¿?');goto(item.x-6,item.y+6,'sniff',1)}
+function idleDo(){const c=cat,q=Math.random();
+if(q<.3){c.spd=Math.random()<.25?2.2:.9;if(c.spd>2)say('💨',40);goto(20+Math.random()*95,80+Math.random()*58,null)}
+else if(q<.5){c.state='groom';c.timer=110}else if(q<.62){c.state='yawn';c.timer=45}
+else if(q<.74){c.state='stretch';c.timer=60}else if(q<.82){c.state='roll';c.timer=100}
+else{c.dir=-c.dir;say('👀',50)}}
+function arrive(t){const c=cat;c.spd=.9;if(t==='eat'){c.state='eat';c.timer=100}else if(t==='litter'){c.state='litter';c.timer=100}else if(t==='sniff'){c.state='sniff';c.timer=70}else if(t==='sleep'){c.state='knead';c.timer=70}else c.state='idle'}
+function finish(){const c=cat,s=c.state;if(s==='knead'){c.state='sleep';return}if(s==='sniff'){c.state='flehmen';c.timer=150;say('👃',150);return}
+if(s==='startle'){c.spd=2;goto(c.x+(Math.random()<.5?-30:30),c.y+10,null);return}if(s==='groom')S.clean=Math.min(100,S.clean+15);
+if(s==='flehmen'){const e=item?item.e:'';item=null;if(e==='🐟'){S.food=Math.min(100,S.food+10);ask('😋')}else if(e==='🌸'){S.love=Math.min(100,S.love+8);ask('😽')}else{say('🤢',80);txt(c.x-8,c.y-30,'puaj')}}
+if(s==='eat'){bowl=false;S.food=Math.min(100,S.food+45);S.love=Math.min(100,S.love+3);ask('😋')}else if(s==='litter'){S.litter=100;ask('😌')}c.state='idle';hud()}
+function pet(){const c=cat;if(c.state==='roll'&&Math.random()<.3){say('😼');meow();S.love-=2;c.state='idle';hud();return}S.love=Math.min(100,S.love+8);if(c.state==='sleep'){c.state='idle';c.noSleep=Date.now()+30000;ask('😾')}
+else{if(['idle','walk','happy'].includes(c.state)){c.state='happy';c.timer=45}purr();for(let i=0;i<3;i++)add(c.x-8+i*7,c.y-28,'h')}hud()}
+const hit=p=>Math.abs(p.x-cat.x)<15&&p.y>cat.y-(cat.state==='sleep'?14:27)&&p.y<cat.y+3;
+function brushAt(p){if(!hit(p))return;S.clean=Math.min(100,S.clean+1.3);S.love=Math.min(100,S.love+.25);if(tick%5===0){add(p.x,p.y,'s',-.3);beep(1200+Math.random()*500,.03,.04)}hud()}
+function step(){tick++;const c=cat;if(c.bub>0)c.bub--;
+P=P.filter(p=>{p.y+=p.vy;return--p.l>0});
+if(c.state==='walk'){const g=c.goal,dx=g.x-c.x,dy=g.y-c.y,d=Math.hypot(dx,dy);if(d<=c.spd+.3){c.x=g.x;c.y=g.y;if(g.d)c.dir=g.d;arrive(g.then)}else{const v=c.spd;c.x+=dx/d*v;c.y+=dy/d*v;if(Math.abs(dx)>.5)c.dir=dx>0?1:-1}}
+else if(TS.includes(c.state)){if(c.state==='flehmen'&&tick%20===0)add(c.x+(c.dir>0?10:-10),c.y-18,'s',-.2);if(c.state==='knead'&&tick%24===0)purr();if(c.state==='eat'&&tick%15===0)beep(300,.05,.06,100);if(c.state==='happy'&&tick%30===0)add(c.x-2,c.y-28,'h');if(--c.timer<=0)finish()}
+else if(c.state==='sleep'&&tick%40===0)add(c.x+6,c.y-20,'z',-.15);
+else if(c.state==='idle'&&Math.random()<.005)idleDo();
+draw()}
+function ai(){const c=cat,n=night();
+if(c.state==='sleep'){if(!n&&S.energy>=95){c.state='idle';ask('☀️')}return}
+if(c.state!=='idle')return;
+if(S.litter<20)return goto(104,97,'litter',1);
+if((n&&Date.now()>c.noSleep)||S.energy<15)return goto(99,131,'sleep',1);
+if(c.cool>0){c.cool--;return}
+if(S.food<30){if(bowl)return goto(32,130,'eat',-1);return ask('🍗')}
+if(S.love<35)return ask('💗');
+if(S.clean<30)return ask('✨')}
+const HS=[['🍗','food'],['💗','love'],['✨','clean'],['🚽','litter'],['⚡','energy']];
+$('#hud').innerHTML=HS.map((h,i)=>`<div class="m">${h[0]}<div class="bar"><i id="m${i}"></i></div></div>`).join('');
+function hud(){HS.forEach((h,i)=>{const v=S[h[1]],e=$('#m'+i);e.style.width=v+'%';e.style.background=v<25?'#e0384e':v<50?'#f0b429':'#5bc85b'})}
+setInterval(()=>{const sl=cat.state==='sleep';S.food-=.35*(sl?.4:1);S.love-=.25;S.clean-=.12;S.litter-=.2;S.energy+=sl?2.2:-.1;
+for(const k in S)S[k]=Math.max(0,Math.min(100,S[k]));hud();ai();
+const d=new Date(),h=hour();$('#t').textContent=(tmode?String(h).padStart(2,'0')+':00':d.toTimeString().slice(0,5))+' · '+(night()?'🌙 Noche':'☀️ Día')},1000);
+// input
+const pos=e=>{const b=cv.getBoundingClientRect();return{x:(e.clientX-b.left)/b.width*W,y:(e.clientY-b.top)/b.height*H}};
+cv.addEventListener('pointerdown',e=>{ac();const p=pos(e);ptr=p;down=true;if(brush){brushAt(p);return}
+if(hit(p))touch(p);else if(!['sleep','eat','litter'].includes(cat.state))goto(p.x,p.y,null)});
+cv.addEventListener('pointermove',e=>{ptr=pos(e);if(brush&&down)brushAt(ptr)});
+cv.addEventListener('pointerleave',()=>ptr=null);
+addEventListener('pointerup',()=>down=false);
+$('#bF').onclick=()=>{ac();if(S.food>90){cat.emoji='🙅';cat.bub=60;return}bowl=true;goto(32,130,'eat',-1)};
+$('#bL').onclick=()=>{ac();if(S.litter>75){cat.emoji='🙅';cat.bub=60;return}goto(104,97,'litter',1)};
+$('#bS').onclick=()=>{ac();goto(99,131,'sleep',1)};
+$('#bB').onclick=e=>{brush=!brush;e.currentTarget.classList.toggle('on',brush)};
+$('#bT').onclick=e=>{tmode=(tmode+1)%3;e.currentTarget.innerHTML='🌓<br>'+['Auto','Día','Noche'][tmode]};
+$('#bR').onclick=()=>{ac();if(['sleep','eat','litter','sniff','flehmen'].includes(cat.state))return;cat.state='roll';cat.timer=110};
+$('#bO').onclick=smell;$('#bC').onclick=callName;
+hud();setInterval(step,33);
+</script></body></html>
