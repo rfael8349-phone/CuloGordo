@@ -105,7 +105,7 @@ case 'yawn':T.hy=-4;T.eye=1;T.mo=3;T.sy=1.03;break;
 case 'stretch':T.lean=5;T.sy=1.06;T.eye=1;T.hy=-3;break;
 case 'pounce':T.sy=.85;T.lean=-4;T.hy=8+(c.timer<11?-6:0);T.dy=c.timer<11?-Math.sin(c.timer/11*Math.PI)*9:0;T.mo=c.timer<11?1:0;break;
 case 'hold':T.sy=.84;T.sx=1.08;T.hy=12;T.hx=-4;T.eye=2;T.mo=(t>>2)&1?1:0;break;
-case 'startle':T.dy=-Math.sin(c.timer/20*Math.PI)*12;T.sy=1.04;T.mo=1;T.lean=-3;breakcase 'swat':T.sx=1.08;T.lean=-5;T.hx=-2;T.dy=-Math.sin((24-c.timer)/24*Math.PI)*4;T.eye=2;T.mo=1;break}
+case 'startle':T.dy=-Math.sin(c.timer/20*Math.PI)*12;T.sy=1.04;T.mo=1;T.lean=-3;break;case 'swat':T.sx=1.08;T.lean=-5;T.hx=-2;T.dy=-Math.sin((24-c.timer)/24*Math.PI)*4;T.eye=2;T.mo=1;break}
 if(c.bt>0){c.bt--;T.eye=1;T.hy=-1}
 if((s==='idle'||s==='walk')&&(t%130<4||t%420<28||Date.now()<c.ign))T.eye=1;
 return T}
@@ -138,12 +138,28 @@ if(c.state==='sleep'){say('😾',55);c.state='startle';c.timer=20;meow();return}
 if(r<.72){c.state='swat';c.timer=24;c.fl=p.x<c.x?1:-1;S.love=Math.max(0,S.love-2);say(r<.35?'😾':'🙀',65);txt(p.x-9,p.y-8,'¡ZAS!');beep(150,.09,.1,-100);meow()}
 else{c.state='startle';c.timer=20;say('😼',55);add(p.x,p.y-3,'s',-.4);beep(260,.05,.06)}
 hud()}
-function touch(h,p){const c=cat;if(c.state==='roll')return;if(Date.now()<c.ign){say('😒',40);return}
-if(h.v>=63&&(h.u<18||h.u>30)){pawTap(p);return}
-if(h.v<37&&h.u<32&&GOOD.includes(c.state))face(p);
-else if(h.u>28&&h.v>48)butt(p);
-else if(h.v>=38&&h.v<63&&h.u>=12&&h.u<=37){if(rnd()<.22){say('😻',55);purr();S.love=Math.min(100,S.love+3)}else pet()}
-else pet()}
+function touch(h,p){
+const c=cat;if(c.state==='roll')return;if(Date.now()<c.ign){say('😒',40);return}
+let part='body';
+if(h.v<9)part='ear';
+else if(h.v<24)part='face';
+else if(h.v<36&&(h.u<10||h.u>18))part='whiskers';
+else if(h.v>=64&&(h.u<18||h.u>30))part='paw';
+else if(h.v>=39&&h.v<64&&h.u>=12&&h.u<=37)part='belly';
+else if(h.v>54&&h.u>29)part='back';
+cgRemember(part);
+if(part==='paw'){pawTap(p);return}
+if(part==='ear'){
+ if(rnd()<.58){say('😾',55);c.state='startle';c.timer=16;add(p.x,p.y-3,'s',-.4);beep(230,.06,.06);meow(.9)}
+ else{say('😽',55);c.state='happy';c.timer=35;purr(.7);S.love=Math.min(100,S.love+2)}
+ hud();return;
+}
+if(part==='face'){if(GOOD.includes(c.state))face(p);else pet();return}
+if(part==='whiskers'){if(rnd()<.55){say('😹',55);c.state='startle';c.timer=13;beep(680,.04,.04,180)}else{say('😺',55);purr(.5);S.love=Math.min(100,S.love+2)}hud();return}
+if(part==='back'){if(rnd()<.25){say('😻',55);purr(.8);S.love=Math.min(100,S.love+3)}else{say('😼',55);c.fl=-c.fl;beep(300,.05,.04)}hud();return}
+if(part==='belly'){if(rnd()<.48){say('😻',60);purr(1.1);S.love=Math.min(100,S.love+4);c.state='happy';c.timer=30}else{say('🙀',60);c.state='startle';c.timer=18;beep(190,.07,.07);meow(.85)}hud();return}
+pet();
+}
 function callName(){ac();const c=cat;txt(4,60,'¡CULOGORDO!');say('👂',50);
 setTimeout(()=>{const q=rnd();
 if(c.state==='sleep'){if(q<.7)return;c.state='idle';c.noSleep=Date.now()+30000;say('😾');meow();return}
@@ -225,11 +241,17 @@ $('#bI').onclick=e=>{aiOn=!aiOn;e.currentTarget.innerHTML='🧠<br>IA: '+(aiOn?'
 
 // === CULOGORDO V2: mascota persistente y con rutina propia ===
 const CG_SAVE='culogordo_v2_save';
+const cgBond={ear:0,face:0,whiskers:0,paw:0,belly:0,back:0,body:0,lastPart:'',lastAt:0};
+function cgRemember(part){
+ cgBond[part]=(cgBond[part]||0)+1;cgBond.lastPart=part;cgBond.lastAt=Date.now();
+ if(cgBond[part]>=5&&part!=='paw'&&part!=='ear'&&rnd()<.35){say(part==='belly'?'😻':part==='face'?'😽':'😺',45);purr(.45)}
+}
 let cgLastLife=Date.now(), cgNextQuirk=Date.now()+18000;
 function cgLoad(){
   try{
     const raw=localStorage.getItem(CG_SAVE); if(!raw)return;
     const d=JSON.parse(raw); if(!d||!d.needs)return;
+    if(d.bond&&typeof d.bond==='object')for(const k of Object.keys(cgBond))if(Number.isFinite(d.bond[k]))cgBond[k]=d.bond[k];
     for(const k of ['food','love','clean','litter','energy']) if(Number.isFinite(d.needs[k])) S[k]=Math.max(0,Math.min(100,d.needs[k]));
     if(Number.isFinite(d.x)) cat.x=Math.max(28,Math.min(50,d.x));
     if(Number.isFinite(d.fl)) cat.fl=d.fl<0?-1:1;
@@ -247,7 +269,7 @@ function cgLoad(){
   }catch(e){console.warn('No se pudo recuperar la partida',e)}
 }
 function cgSave(){
-  try{localStorage.setItem(CG_SAVE,JSON.stringify({needs:S,x:cat.x,fl:cat.fl,hat:hI,shirt:sI,savedAt:Date.now()}))}catch(e){}
+  try{localStorage.setItem(CG_SAVE,JSON.stringify({needs:S,bond:cgBond,x:cat.x,fl:cat.fl,hat:hI,shirt:sI,savedAt:Date.now()}))}catch(e){}
 }
 cgLoad();
 setInterval(cgSave,5000);
