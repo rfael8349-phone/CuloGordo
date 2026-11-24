@@ -21,7 +21,7 @@ button.on{background:#8fe08f}button:active{transform:translateY(3px);box-shadow:
 <div id="hud"></div>
 <div id="bt">
 <button id="bF">🍗<br>Comer</button><button id="bB">✨<br>Peinar</button><button id="bL">🚽<br>Arenero</button><button id="bS">🛏<br>Dormir</button>
-<button id="bR">🔄<br>Girar</button><button id="bO">👃<br>Oler</button><button id="bC">📢<br>CuloGordo</button><button id="bT">🌓<br>Auto</button><button id="bY">🧶<br>Ovillo</button><button id="bW">🎣<br>Caña</button><button id="bH">👒<br>Gorro</button><button id="bK">👕<br>Camisa</button><button id="bI">🧠<br>IA: sí</button></div>
+<button id="bR">🔄<br>Girar</button><button id="bO">👃<br>Oler</button><button id="bC">📢<br>CuloGordo</button><button id="bT">🌓<br>Auto</button><button id="bY">🧶<br>Ovillo</button><button id="bW">🎣<br>Caña</button><button id="bP">🐈<br>Color</button><button id="bH">👒<br>Gorro</button><button id="bK">👕<br>Ropa</button><button id="bD">🧸<br>Juguetes</button><button id="bI">🧠<br>IA: sí</button></div>
 <script>
 const $=s=>document.querySelector(s),W=80,H=150,cv=$('#c'),X=cv.getContext('2d');cv.width=W;cv.height=H;X.imageSmoothingEnabled=false;
 const f=(c,x,y,w,h)=>{X.fillStyle=c;X.fillRect(Math.round(x),Math.round(y),w,h)};
@@ -30,7 +30,7 @@ img.onload=()=>{const o=document.createElement('canvas');o.width=48;o.height=88;
 const S={food:70,love:50,clean:60,litter:80,energy:80};
 const cat={x:38,fl:1,state:'idle',goal:null,timer:0,bub:0,emoji:'',cool:3,noSleep:0,ign:0,spd:.6,lk:0,bx:0,bt:0,rf:1,lastTouch:0,lastPounce:0};
 const cur={sx:1,sy:1,lean:0,hx:0,hy:0,ht:0,dy:0};
-let imgS=null,hI=0,sI=0,aiOn=true,ball=null,wand=null,wandOn=false,ballOn=false,tick=0,bowl=false,brush=false,tmode=0,ptr=null,down=false,P=[],ctx=null,item=null,EY=0,EM=0,lab='';
+let imgS=null,skinImg=null,skinI=0,hI=0,sI=0,toyI=0,aiOn=true,ball=null,wand=null,wandOn=false,ballOn=false,tick=0,bowl=false,brush=false,tmode=0,ptr=null,down=false,P=[],ctx=null,item=null,EY=0,EM=0,lab='';
 const TS=['eat','litter','happy','sniff','flehmen','groom','yawn','stretch','knead','roll','startle','pounce','hold','swat'],GOOD=['idle','walk','happy','groom','yawn','stretch'];
 const YB=132,rnd=Math.random;
 // audio
@@ -43,9 +43,9 @@ const purr=(d=1.2)=>{const c=ac();if(!c)return;const t=c.currentTime,o=c.createO
 function sprite(){const c=cat,Wd=48,Ht=88,sy=cur.sy,top=YB+cur.dy-Ht*sy,fl=c.fl*c.rf;
 const off=r=>cur.lean*Math.pow((Ht-1-r)/Ht,2),ear=r=>(tick%230<6&&r<11)?1:0,ho=r=>off(r)+cur.hx+cur.ht*Math.max(0,(36-r)/36)+ear(r),yy=r=>Math.round(top+r*sy);
 X.save();X.translate(Math.round(c.x),0);X.scale(fl*cur.sx,1);
-for(let r=32;r<Ht;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(imgS||img,0,r,Wd,1,-24+Math.round(off(r)),yy(r),Wd,h)}
+for(let r=32;r<Ht;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(imgS||skinImg||img,0,r,Wd,1,-24+Math.round(off(r)),yy(r),Wd,h)}
 const hy=Math.round(cur.hy);
-for(let r=0;r<37;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(img,0,r,Wd,1,-24+Math.round(ho(r)),yy(r)+hy,Wd,h)}
+for(let r=0;r<37;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(skinImg||img,0,r,Wd,1,-24+Math.round(ho(r)),yy(r)+hy,Wd,h)}
 const ov=(x,y,w,h,k)=>{X.fillStyle=k;for(let j=0;j<h;j++){const r=y+j,hh=yy(r+1)-yy(r);if(hh>0)X.fillRect(-24+x+Math.round(ho(r)),yy(r)+hy,w,hh)}};
 if(EY===1){ov(7,18,3,3,'#b4784a');ov(7,19,3,1,'#3a1c10')}else if(EY===2){ov(7,18,3,1,'#b4784a');ov(7,20,3,1,'#b4784a')}
 // ojos gemelos y hocico centrado para que el gato mire al jugador
@@ -55,7 +55,7 @@ ov(1,27,5,1,'#d8cdb8');ov(17,27,5,1,'#d8cdb8');
 if(EM===1){ov(2,29,7,3,'#3a1c10');ov(4,31,4,1,'#ff7a93')}else if(EM===3){ov(1,28,9,5,'#3a1c10');ov(3,31,5,2,'#ff7a93')}else if(EM===2){ov(-3,29,5,2,'#ff7a93');ov(-3,29,5,1,'#ffb0c0')}
 if(hI===1){[[15,2,1],[15,3,2],[14,4,3],[14,5,4],[13,6,5],[13,7,6],[12,8,7],[12,9,8],[11,10,9],[11,11,10]].forEach((a,i)=>ov(a[0],a[1],a[2],1,i%3==2?'#ffd23a':'#ff5a7a'));ov(14,0,3,2,'#fff')}
 else if(hI===2){ov(11,8,10,4,'#ffd23a');[11,14,17,20].forEach(x=>ov(x,6,2,2,'#ffd23a'));ov(14,9,2,2,'#d62f3f')}
-else if(hI===3){ov(3,10,3,3,'#ff6fa5');ov(8,10,3,3,'#ff6fa5');ov(6,11,2,1,'#c23a73')}
+else if(hI===3){ov(3,10,3,3,'#ff6fa5');ov(8,10,3,3,'#ff6fa5');ov(6,11,2,1,'#c23a73')}\nelse if(hI===4){ov(8,3,10,3,'#5b4636');ov(5,5,16,3,'#b77b3f');ov(12,1,3,3,'#fff')}\nelse if(hI===5){ov(6,7,14,4,'#3c3c45');ov(10,3,6,5,'#3c3c45');ov(12,1,2,3,'#ffd23a')}\nelse if(hI===6){ov(8,4,12,3,'#d62f3f');ov(11,1,6,4,'#d62f3f');ov(13,2,2,2,'#fff')}
 X.restore()}
 function tail(){const c=cat,s=c.state,t=tick;let a0=-.25,cv_=.11,sp=.07,am=.22,th=4;
 if(s==='happy'||s==='knead'){a0=-.9;sp=.14;am=.12}else if(Date.now()<c.ign){a0=-.3;sp=.4;am=.5}else if(s==='startle'){a0=-1.1;am=.05;th=6}else if(s==='sleep'){a0=.35;cv_=-.05;am=.05;sp=.03}else if(s==='eat'||s==='litter'||s==='sniff')a0=-.5;
@@ -168,7 +168,7 @@ if(!['idle','walk','happy'].includes(c.state))return;
 if(q<.45){c.ign=Date.now()+8000;c.fl=-c.fl;c.state='idle';say('😑',90);txt(c.x-6,42,'...')}
 else if(q<.8){say('😾',60);meow();goto(38,null,1.4)}else{say('😽',90);beep(900,.1,.05)}},900)}
 function smell(){ac();const es=['🧦','🐟','🌸','🧅','🥾'];item={e:es[rnd()*5|0],x:12+rnd()*16,y:146};txt(item.x,136,'¿?');goto(29,'sniff')}
-function shirt(){if(!sI){imgS=null;return}const o=document.createElement('canvas');o.width=48;o.height=88;const g=o.getContext('2d');g.drawImage(img,0,0);const d=g.getImageData(0,0,48,88),a=d.data,C=[0,[214,47,63],[44,107,192],[59,165,92]][sI];
+function buildSkin(){if(!skinI){skinImg=img;shirt();return}const o=document.createElement("canvas");o.width=48;o.height=88;const g=o.getContext("2d");g.drawImage(img,0,0);const d=g.getImageData(0,0,48,88),pal=[[0,0,0],[232,154,72],[150,155,165],[245,235,210],[70,67,72],[238,220,185],[255,255,255],[180,115,70]][skinI];for(let i=0;i<d.data.length;i+=4){let r=d.data[i],gg=d.data[i+1],b=d.data[i+2];if(d.data[i+3]&&r>gg*1.08&&gg>b*1.04&&r-gg>10&&r>55){let lum=(r*.3+gg*.59+b*.11)/160,k=Math.min(1.25,Math.max(.35,lum));d.data[i]=pal[0]*k;d.data[i+1]=pal[1]*k;d.data[i+2]=pal[2]*k}}g.putImageData(d,0,0);skinImg=o;shirt()}\nfunction shirt(){if(!sI){imgS=null;return}const o=document.createElement('canvas');o.width=48;o.height=88;const g=o.getContext('2d');g.drawImage(skinImg||img,0,0);const d=g.getImageData(0,0,48,88),a=d.data,C=[[0,0,0],[214,47,63],[44,107,192],[59,165,92],[150,75,190],[240,160,40],[35,165,165],[245,105,165]][sI];
 for(let y=38;y<66;y++)for(let x=0;x<48;x++){const i=(y*48+x)*4;if(!a[i+3]||(a[i]===74&&a[i+1]===36&&a[i+2]===16))continue;const lum=(a[i]*.3+a[i+1]*.59+a[i+2]*.11)/190,k=Math.min(1.15,.55+lum*.7),c=(sI===2&&((y>>1)&1))?[245,245,245]:C;a[i]=c[0]*k;a[i+1]=c[1]*k;a[i+2]=c[2]*k}
 g.putImageData(d,0,0);imgS=o}
 function toys(){const c=cat;
@@ -179,7 +179,7 @@ const ty=w?wand.ly:ball.y,mv=w?wand.v>3:Math.abs(ball.vx)+Math.abs(ball.vy)>.4;
 c.lk=Math.max(-3,Math.min(3,(tg-c.x)/5))*c.fl;
 if(tick%8===0&&(mv||Math.abs(tg-c.x)>14)){c.goal={x:Math.max(28,Math.min(50,tg)),then:null};c.spd=mv?1.5:.8;c.state='walk'}
 if(Math.abs(tg-c.x)<13&&ty>(w?60:112)&&(mv||rnd()<.02)&&tick-c.lastPounce>50){c.lastPounce=tick;c.state='pounce';c.timer=22;chirp()}}
-function toyDraw(){if(ball){const x=Math.round(ball.x),y=Math.round(ball.y);f('#4a2410',x-4,y-4,8,8);f('#e0384e',x-3,y-3,6,6);f('#ff8fa0',x-2,y-2,3,1);f('#a31d33',x-1,y+1,3,1);f('#ff8fa0',x+1,y-1,1,3)}
+function toyDraw(){if(ball){const x=Math.round(ball.x),y=Math.round(ball.y),cols=[["#e0384e","#ff8fa0","#a31d33"],["#3d9ee8","#bdeaff","#174f8a"],["#e8c34a","#fff0a0","#9a6b16"],["#7b49b5","#d8b5ff","#45236e"],["#55a85b","#b8ef9b","#27632d"]][toyI];f("#4a2410",x-4,y-4,8,8);f(cols[0],x-3,y-3,6,6);f(cols[1],x-2,y-2,3,1);f(cols[2],x-1,y+1,3,1);f(cols[1],x+1,y-1,1,3)
 if(wand&&wand.on){for(let i=0;i<12;i++)f('#8a5a2a',wand.fx+i*.7,wand.fy-i*1.6,2,2);for(let i=0;i<=8;i++){const t=i/8;f('#fff',wand.fx+(wand.lx-wand.fx)*t,wand.fy+(wand.ly-wand.fy)*t+Math.sin(t*Math.PI)*4,1,1)}f('#ff5a7a',wand.lx-2,wand.ly,5,3);f('#ffd23a',wand.lx-1,wand.ly-2,3,2)}}
 const per={play:.7+rnd()*.3,cuddle:.9,lazy:.6,curious:.5+rnd()*.4},last={};
 function think(){const c=cat,n=night(),now=Date.now(),sc={},toy=(ball&&!ball.held)||(wand&&wand.on);
@@ -236,8 +236,8 @@ $('#bR').onclick=()=>{ac();if(['sleep','eat','litter','sniff','flehmen'].include
 $('#bO').onclick=smell;$('#bC').onclick=callName;
 $('#bY').onclick=e=>{ballOn=!ballOn;wandOn=false;wand=null;if(!ballOn)ball=null;$('#bW').classList.remove('on');e.currentTarget.classList.toggle('on',ballOn);if(ballOn){ac();say('🧶',70);chirp()}};
 $('#bW').onclick=e=>{wandOn=!wandOn;ballOn=false;ball=null;$('#bY').classList.remove('on');if(!wandOn)wand=null;e.currentTarget.classList.toggle('on',wandOn);if(wandOn){ac();say('👀',70)}};
-$('#bH').onclick=()=>{ac();hI=(hI+1)%4;say(['😺','🎉','👑','🎀'][hI],60);chirp()};
-$('#bK').onclick=()=>{ac();sI=(sI+1)%4;shirt();say(['😺','❤️','💙','💚'][sI],60);chirp()};
+$('#bP').onclick=()=>{ac();skinI=(skinI+1)%8;buildSkin();say(["😺","🧡","🩶","🤍","🐈‍⬛","🐈","😻","🐯"][skinI],65);chirp()};\n$('#bH').onclick=()=>{ac();hI=(hI+1)%7;say(["😺","🎉","👑","🎀","🤠","🎩","🧢"][hI],60);chirp()};
+$('#bK').onclick=()=>{ac();sI=(sI+1)%8;shirt();say(["😺","❤️","💙","💚","💜","🧡","🩵","💗"][sI],60);chirp()};\n$('#bD').onclick=()=>{ac();toyI=(toyI+1)%5;say(["🧶","🔵","🟡","🟣","🟢"][toyI],70);chirp()};
 $('#bI').onclick=e=>{aiOn=!aiOn;e.currentTarget.innerHTML='🧠<br>IA: '+(aiOn?'sí':'no')};
 
 // === CULOGORDO V2: mascota persistente y con rutina propia ===
@@ -257,7 +257,7 @@ function cgLoad(){
     if(Number.isFinite(d.x)) cat.x=Math.max(28,Math.min(50,d.x));
     if(Number.isFinite(d.fl)) cat.fl=d.fl<0?-1:1;
     if(Number.isFinite(d.hat)) hI=(d.hat+4)%4;
-    if(Number.isFinite(d.shirt)) sI=(d.shirt+4)%4;
+    if(Number.isFinite(d.shirt)) sI=(d.shirt+8)%8;\n    if(Number.isFinite(d.skin)) skinI=(d.skin+8)%8;\n    if(Number.isFinite(d.toy)) toyI=(d.toy+5)%5;
     const elapsed=Math.max(0,Math.min(86400000,Date.now()-(d.savedAt||Date.now())))/60000;
     // El tiempo pasa mientras la persona no juega, pero la mascota no se castiga de forma extrema.
     S.food=Math.max(0,S.food-elapsed*.12);
@@ -270,9 +270,9 @@ function cgLoad(){
   }catch(e){console.warn('No se pudo recuperar la partida',e)}
 }
 function cgSave(){
-  try{localStorage.setItem(CG_SAVE,JSON.stringify({needs:S,bond:cgBond,x:cat.x,fl:cat.fl,hat:hI,shirt:sI,savedAt:Date.now()}))}catch(e){}
+  try{localStorage.setItem(CG_SAVE,JSON.stringify({needs:S,bond:cgBond,x:cat.x,fl:cat.fl,hat:hI,shirt:sI,skin:skinI,toy:toyI,savedAt:Date.now()}))}catch(e){}
 }
-cgLoad();
+cgLoad();\nbuildSkin();
 setInterval(cgSave,5000);
 addEventListener('pagehide',cgSave);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)cgSave()});
@@ -291,5 +291,5 @@ function cgLittleLife(){
 }
 setInterval(cgLittleLife,1000);
 
-hud();setInterval(step,33);
+buildSkin();hud();setInterval(step,33);
 </script></body></html>
