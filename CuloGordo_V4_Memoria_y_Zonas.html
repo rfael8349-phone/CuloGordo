@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><title>Tu gato 16-bit</title>
+<html lang="es"><head><meta charset="utf-8"><title>CuloGordo V4 - Memoria y personalidad</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 :root{--bg:#d9cdf5;--fg:#2a2140;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -15,21 +15,22 @@ canvas{width:min(100vw,calc((100dvh - 176px - env(safe-area-inset-top,0px) - env
 .m{font-size:.8rem;text-align:center}.bar{height:7px;background:#0003;border:2px solid #2a2140;margin-top:1px}.bar i{display:block;height:100%;width:50%}
 button br{display:none}button{font:inherit;font-size:.6rem;padding:5px 0;border:3px solid #2a2140;background:#f6bd6b;color:#2a2140;box-shadow:0 3px 0 #2a2140;cursor:pointer;line-height:1.25}
 button.on{background:#8fe08f}button:active{transform:translateY(3px);box-shadow:none}
+#versionTag{font-size:11px;font-weight:bold;letter-spacing:1px;padding:4px 9px;margin:4px auto 2px;border:2px solid #2a2140;border-radius:4px;background:#f6bd6b;color:#2a2140;box-shadow:0 2px 0 #2a2140}
 </style></head><body>
-<canvas id="c"></canvas>
+<div id="versionTag">CULOGORDO · V4 · MEMORIA ACTIVA</div><canvas id="c"></canvas>
 <div id="hud"></div>
 <div id="bt">
 <button id="bF">🍗<br>Comer</button><button id="bB">✨<br>Peinar</button><button id="bL">🚽<br>Arenero</button><button id="bS">🛏<br>Dormir</button>
-<button id="bR">🔄<br>Girar</button><button id="bO">👃<br>Oler</button><button id="bC">📢<br>CuloGordo</button><button id="bT">🌓<br>Auto</button><button id="bY">🧶<br>Ovillo</button><button id="bW">🎣<br>Caña</button><button id="bH">👒<br>Gorro</button><button id="bK">👕<br>Camisa</button><button id="bI">🧠<br>IA: sí</button></div>
+<button id="bR">🔄<br>Girar</button><button id="bO">👃<br>Oler</button><button id="bC">📢<br>CuloGordo</button><button id="bT">🌓<br>Auto</button><button id="bY">🧶<br>Ovillo</button><button id="bW">🎣<br>Caña</button><button id="bP">🐈<br>Color</button><button id="bH">👒<br>Gorro</button><button id="bK">👕<br>Ropa</button><button id="bD">🧸<br>Juguetes</button><button id="bI">🧠<br>IA: sí</button></div>
 <script>
 const $=s=>document.querySelector(s),W=80,H=150,cv=$('#c'),X=cv.getContext('2d');cv.width=W;cv.height=H;X.imageSmoothingEnabled=false;
 const f=(c,x,y,w,h)=>{X.fillStyle=c;X.fillRect(Math.round(x),Math.round(y),w,h)};
 const img=new Image();img.src='data:image/png;base64,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';let A=null;
-img.onload=()=>{const o=document.createElement('canvas');o.width=48;o.height=88;const g=o.getContext('2d');g.drawImage(img,0,0);A=g.getImageData(0,0,48,88).data;shirt()};
+img.onload=()=>{const o=document.createElement('canvas');o.width=48;o.height=88;const g=o.getContext('2d');g.drawImage(img,0,0);A=g.getImageData(0,0,48,88).data;buildSkin()};
 const S={food:70,love:50,clean:60,litter:80,energy:80};
 const cat={x:38,fl:1,state:'idle',goal:null,timer:0,bub:0,emoji:'',cool:3,noSleep:0,ign:0,spd:.6,lk:0,bx:0,bt:0,rf:1,lastTouch:0,lastPounce:0};
 const cur={sx:1,sy:1,lean:0,hx:0,hy:0,ht:0,dy:0};
-let imgS=null,hI=0,sI=0,aiOn=true,ball=null,wand=null,wandOn=false,ballOn=false,tick=0,bowl=false,brush=false,tmode=0,ptr=null,down=false,P=[],ctx=null,item=null,EY=0,EM=0,lab='';
+let imgS=null,skinImg=null,skinI=0,hI=0,sI=0,toyI=0,aiOn=true,ball=null,wand=null,wandOn=false,ballOn=false,tick=0,bowl=false,brush=false,tmode=0,ptr=null,down=false,P=[],ctx=null,item=null,EY=0,EM=0,lab='';
 const TS=['eat','litter','happy','sniff','flehmen','groom','yawn','stretch','knead','roll','startle','pounce','hold','swat'],GOOD=['idle','walk','happy','groom','yawn','stretch'];
 const YB=132,rnd=Math.random;
 // audio
@@ -42,9 +43,9 @@ const purr=(d=1.2)=>{const c=ac();if(!c)return;const t=c.currentTime,o=c.createO
 function sprite(){const c=cat,Wd=48,Ht=88,sy=cur.sy,top=YB+cur.dy-Ht*sy,fl=c.fl*c.rf;
 const off=r=>cur.lean*Math.pow((Ht-1-r)/Ht,2),ear=r=>(tick%230<6&&r<11)?1:0,ho=r=>off(r)+cur.hx+cur.ht*Math.max(0,(36-r)/36)+ear(r),yy=r=>Math.round(top+r*sy);
 X.save();X.translate(Math.round(c.x),0);X.scale(fl*cur.sx,1);
-for(let r=32;r<Ht;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(imgS||img,0,r,Wd,1,-24+Math.round(off(r)),yy(r),Wd,h)}
+for(let r=32;r<Ht;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(imgS||skinImg||img,0,r,Wd,1,-24+Math.round(off(r)),yy(r),Wd,h)}
 const hy=Math.round(cur.hy);
-for(let r=0;r<37;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(img,0,r,Wd,1,-24+Math.round(ho(r)),yy(r)+hy,Wd,h)}
+for(let r=0;r<37;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(skinImg||img,0,r,Wd,1,-24+Math.round(ho(r)),yy(r)+hy,Wd,h)}
 const ov=(x,y,w,h,k)=>{X.fillStyle=k;for(let j=0;j<h;j++){const r=y+j,hh=yy(r+1)-yy(r);if(hh>0)X.fillRect(-24+x+Math.round(ho(r)),yy(r)+hy,w,hh)}};
 if(EY===1){ov(7,18,3,3,'#b4784a');ov(7,19,3,1,'#3a1c10')}else if(EY===2){ov(7,18,3,1,'#b4784a');ov(7,20,3,1,'#b4784a')}
 // ojos gemelos y hocico centrado para que el gato mire al jugador
@@ -54,7 +55,7 @@ ov(1,27,5,1,'#d8cdb8');ov(17,27,5,1,'#d8cdb8');
 if(EM===1){ov(2,29,7,3,'#3a1c10');ov(4,31,4,1,'#ff7a93')}else if(EM===3){ov(1,28,9,5,'#3a1c10');ov(3,31,5,2,'#ff7a93')}else if(EM===2){ov(-3,29,5,2,'#ff7a93');ov(-3,29,5,1,'#ffb0c0')}
 if(hI===1){[[15,2,1],[15,3,2],[14,4,3],[14,5,4],[13,6,5],[13,7,6],[12,8,7],[12,9,8],[11,10,9],[11,11,10]].forEach((a,i)=>ov(a[0],a[1],a[2],1,i%3==2?'#ffd23a':'#ff5a7a'));ov(14,0,3,2,'#fff')}
 else if(hI===2){ov(11,8,10,4,'#ffd23a');[11,14,17,20].forEach(x=>ov(x,6,2,2,'#ffd23a'));ov(14,9,2,2,'#d62f3f')}
-else if(hI===3){ov(3,10,3,3,'#ff6fa5');ov(8,10,3,3,'#ff6fa5');ov(6,11,2,1,'#c23a73')}
+else if(hI===3){ov(3,10,3,3,'#ff6fa5');ov(8,10,3,3,'#ff6fa5');ov(6,11,2,1,'#c23a73')}\nelse if(hI===4){ov(8,3,10,3,'#5b4636');ov(5,5,16,3,'#b77b3f');ov(12,1,3,3,'#fff')}\nelse if(hI===5){ov(6,7,14,4,'#3c3c45');ov(10,3,6,5,'#3c3c45');ov(12,1,2,3,'#ffd23a')}\nelse if(hI===6){ov(8,4,12,3,'#d62f3f');ov(11,1,6,4,'#d62f3f');ov(13,2,2,2,'#fff')}
 X.restore()}
 function tail(){const c=cat,s=c.state,t=tick;let a0=-.25,cv_=.11,sp=.07,am=.22,th=4;
 if(s==='happy'||s==='knead'){a0=-.9;sp=.14;am=.12}else if(Date.now()<c.ign){a0=-.3;sp=.4;am=.5}else if(s==='startle'){a0=-1.1;am=.05;th=6}else if(s==='sleep'){a0=.35;cv_=-.05;am=.05;sp=.03}else if(s==='eat'||s==='litter'||s==='sniff')a0=-.5;
@@ -167,7 +168,7 @@ if(!['idle','walk','happy'].includes(c.state))return;
 if(q<.45){c.ign=Date.now()+8000;c.fl=-c.fl;c.state='idle';say('😑',90);txt(c.x-6,42,'...')}
 else if(q<.8){say('😾',60);meow();goto(38,null,1.4)}else{say('😽',90);beep(900,.1,.05)}},900)}
 function smell(){ac();const es=['🧦','🐟','🌸','🧅','🥾'];item={e:es[rnd()*5|0],x:12+rnd()*16,y:146};txt(item.x,136,'¿?');goto(29,'sniff')}
-function shirt(){if(!sI){imgS=null;return}const o=document.createElement('canvas');o.width=48;o.height=88;const g=o.getContext('2d');g.drawImage(img,0,0);const d=g.getImageData(0,0,48,88),a=d.data,C=[0,[214,47,63],[44,107,192],[59,165,92]][sI];
+function buildSkin(){if(!skinI){skinImg=img;shirt();return}const o=document.createElement("canvas");o.width=48;o.height=88;const g=o.getContext("2d");g.drawImage(img,0,0);const d=g.getImageData(0,0,48,88),pal=[[0,0,0],[232,154,72],[150,155,165],[245,235,210],[70,67,72],[238,220,185],[255,255,255],[180,115,70]][skinI];for(let i=0;i<d.data.length;i+=4){let r=d.data[i],gg=d.data[i+1],b=d.data[i+2];if(d.data[i+3]&&r>gg*1.08&&gg>b*1.04&&r-gg>10&&r>55){let lum=(r*.3+gg*.59+b*.11)/160,k=Math.min(1.25,Math.max(.35,lum));d.data[i]=pal[0]*k;d.data[i+1]=pal[1]*k;d.data[i+2]=pal[2]*k}}g.putImageData(d,0,0);skinImg=o;shirt()}\nfunction shirt(){if(!sI){imgS=null;return}const o=document.createElement('canvas');o.width=48;o.height=88;const g=o.getContext('2d');g.drawImage(skinImg||img,0,0);const d=g.getImageData(0,0,48,88),a=d.data,C=[[0,0,0],[214,47,63],[44,107,192],[59,165,92],[150,75,190],[240,160,40],[35,165,165],[245,105,165]][sI];
 for(let y=38;y<66;y++)for(let x=0;x<48;x++){const i=(y*48+x)*4;if(!a[i+3]||(a[i]===74&&a[i+1]===36&&a[i+2]===16))continue;const lum=(a[i]*.3+a[i+1]*.59+a[i+2]*.11)/190,k=Math.min(1.15,.55+lum*.7),c=(sI===2&&((y>>1)&1))?[245,245,245]:C;a[i]=c[0]*k;a[i+1]=c[1]*k;a[i+2]=c[2]*k}
 g.putImageData(d,0,0);imgS=o}
 function toys(){const c=cat;
@@ -178,7 +179,7 @@ const ty=w?wand.ly:ball.y,mv=w?wand.v>3:Math.abs(ball.vx)+Math.abs(ball.vy)>.4;
 c.lk=Math.max(-3,Math.min(3,(tg-c.x)/5))*c.fl;
 if(tick%8===0&&(mv||Math.abs(tg-c.x)>14)){c.goal={x:Math.max(28,Math.min(50,tg)),then:null};c.spd=mv?1.5:.8;c.state='walk'}
 if(Math.abs(tg-c.x)<13&&ty>(w?60:112)&&(mv||rnd()<.02)&&tick-c.lastPounce>50){c.lastPounce=tick;c.state='pounce';c.timer=22;chirp()}}
-function toyDraw(){if(ball){const x=Math.round(ball.x),y=Math.round(ball.y);f('#4a2410',x-4,y-4,8,8);f('#e0384e',x-3,y-3,6,6);f('#ff8fa0',x-2,y-2,3,1);f('#a31d33',x-1,y+1,3,1);f('#ff8fa0',x+1,y-1,1,3)}
+function toyDraw(){if(ball){const x=Math.round(ball.x),y=Math.round(ball.y),cols=[["#e0384e","#ff8fa0","#a31d33"],["#3d9ee8","#bdeaff","#174f8a"],["#e8c34a","#fff0a0","#9a6b16"],["#7b49b5","#d8b5ff","#45236e"],["#55a85b","#b8ef9b","#27632d"]][toyI];f("#4a2410",x-4,y-4,8,8);f(cols[0],x-3,y-3,6,6);f(cols[1],x-2,y-2,3,1);f(cols[2],x-1,y+1,3,1);f(cols[1],x+1,y-1,1,3)
 if(wand&&wand.on){for(let i=0;i<12;i++)f('#8a5a2a',wand.fx+i*.7,wand.fy-i*1.6,2,2);for(let i=0;i<=8;i++){const t=i/8;f('#fff',wand.fx+(wand.lx-wand.fx)*t,wand.fy+(wand.ly-wand.fy)*t+Math.sin(t*Math.PI)*4,1,1)}f('#ff5a7a',wand.lx-2,wand.ly,5,3);f('#ffd23a',wand.lx-1,wand.ly-2,3,2)}}
 const per={play:.7+rnd()*.3,cuddle:.9,lazy:.6,curious:.5+rnd()*.4},last={};
 function think(){const c=cat,n=night(),now=Date.now(),sc={},toy=(ball&&!ball.held)||(wand&&wand.on);
@@ -235,8 +236,8 @@ $('#bR').onclick=()=>{ac();if(['sleep','eat','litter','sniff','flehmen'].include
 $('#bO').onclick=smell;$('#bC').onclick=callName;
 $('#bY').onclick=e=>{ballOn=!ballOn;wandOn=false;wand=null;if(!ballOn)ball=null;$('#bW').classList.remove('on');e.currentTarget.classList.toggle('on',ballOn);if(ballOn){ac();say('🧶',70);chirp()}};
 $('#bW').onclick=e=>{wandOn=!wandOn;ballOn=false;ball=null;$('#bY').classList.remove('on');if(!wandOn)wand=null;e.currentTarget.classList.toggle('on',wandOn);if(wandOn){ac();say('👀',70)}};
-$('#bH').onclick=()=>{ac();hI=(hI+1)%4;say(['😺','🎉','👑','🎀'][hI],60);chirp()};
-$('#bK').onclick=()=>{ac();sI=(sI+1)%4;shirt();say(['😺','❤️','💙','💚'][sI],60);chirp()};
+$('#bP').onclick=()=>{ac();skinI=(skinI+1)%8;buildSkin();say(["😺","🧡","🩶","🤍","🐈‍⬛","🐈","😻","🐯"][skinI],65);chirp()};\n$('#bH').onclick=()=>{ac();hI=(hI+1)%7;say(["😺","🎉","👑","🎀","🤠","🎩","🧢"][hI],60);chirp()};
+$('#bK').onclick=()=>{ac();sI=(sI+1)%8;shirt();say(["😺","❤️","💙","💚","💜","🧡","🩵","💗"][sI],60);chirp()};\n$('#bD').onclick=()=>{ac();toyI=(toyI+1)%5;say(["🧶","🔵","🟡","🟣","🟢"][toyI],70);chirp()};
 $('#bI').onclick=e=>{aiOn=!aiOn;e.currentTarget.innerHTML='🧠<br>IA: '+(aiOn?'sí':'no')};
 
 // === CULOGORDO V2: mascota persistente y con rutina propia ===
@@ -256,7 +257,7 @@ function cgLoad(){
     if(Number.isFinite(d.x)) cat.x=Math.max(28,Math.min(50,d.x));
     if(Number.isFinite(d.fl)) cat.fl=d.fl<0?-1:1;
     if(Number.isFinite(d.hat)) hI=(d.hat+4)%4;
-    if(Number.isFinite(d.shirt)) sI=(d.shirt+4)%4;
+    if(Number.isFinite(d.shirt)) sI=(d.shirt+8)%8;\n    if(Number.isFinite(d.skin)) skinI=(d.skin+8)%8;\n    if(Number.isFinite(d.toy)) toyI=(d.toy+5)%5;
     const elapsed=Math.max(0,Math.min(86400000,Date.now()-(d.savedAt||Date.now())))/60000;
     // El tiempo pasa mientras la persona no juega, pero la mascota no se castiga de forma extrema.
     S.food=Math.max(0,S.food-elapsed*.12);
@@ -265,13 +266,12 @@ function cgLoad(){
     S.litter=Math.max(0,S.litter-elapsed*.035);
     S.energy=Math.min(100,S.energy+elapsed*.10);
     if(elapsed>45){cat.state='idle';say('😺',70)}
-    shirt();
   }catch(e){console.warn('No se pudo recuperar la partida',e)}
 }
 function cgSave(){
-  try{localStorage.setItem(CG_SAVE,JSON.stringify({needs:S,bond:cgBond,x:cat.x,fl:cat.fl,hat:hI,shirt:sI,savedAt:Date.now()}))}catch(e){}
+  try{localStorage.setItem(CG_SAVE,JSON.stringify({needs:S,bond:cgBond,x:cat.x,fl:cat.fl,hat:hI,shirt:sI,skin:skinI,toy:toyI,savedAt:Date.now()}))}catch(e){}
 }
-cgLoad();
+cgLoad();\nbuildSkin();
 setInterval(cgSave,5000);
 addEventListener('pagehide',cgSave);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)cgSave()});
@@ -290,5 +290,5 @@ function cgLittleLife(){
 }
 setInterval(cgLittleLife,1000);
 
-hud();setInterval(step,33);
+buildSkin();hud();setInterval(step,33);
 </script></body></html>
