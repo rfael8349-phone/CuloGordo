@@ -184,7 +184,7 @@ c.lk=Math.max(-3,Math.min(3,(tg-c.x)/5))*c.fl;
 if(tick%8===0&&(mv||Math.abs(tg-c.x)>14)){c.goal={x:Math.max(28,Math.min(50,tg)),then:null};c.spd=mv?1.5:.8;c.state='walk'}
 if(Math.abs(tg-c.x)<13&&ty>(w?60:112)&&(mv||rnd()<.02)&&tick-c.lastPounce>50){c.lastPounce=tick;c.state='pounce';c.timer=22;chirp()}}
 function toyDraw(){if(ball){const x=Math.round(ball.x),y=Math.round(ball.y),cols=[["#e0384e","#ff8fa0","#a31d33"],["#3d9ee8","#bdeaff","#174f8a"],["#e8c34a","#fff0a0","#9a6b16"],["#7b49b5","#d8b5ff","#45236e"],["#55a85b","#b8ef9b","#27632d"]][toyI];f("#4a2410",x-4,y-4,8,8);f(cols[0],x-3,y-3,6,6);f(cols[1],x-2,y-2,3,1);f(cols[2],x-1,y+1,3,1);f(cols[1],x+1,y-1,1,3)
-if(wand&&wand.on){for(let i=0;i<12;i++)f('#8a5a2a',wand.fx+i*.7,wand.fy-i*1.6,2,2);for(let i=0;i<=8;i++){const t=i/8;f('#fff',wand.fx+(wand.lx-wand.fx)*t,wand.fy+(wand.ly-wand.fy)*t+Math.sin(t*Math.PI)*4,1,1)}f('#ff5a7a',wand.lx-2,wand.ly,5,3);f('#ffd23a',wand.lx-1,wand.ly-2,3,2)}}
+if(wand&&wand.on){for(let i=0;i<12;i++)f('#8a5a2a',wand.fx+i*.7,wand.fy-i*1.6,2,2);for(let i=0;i<=8;i++){const t=i/8;f('#fff',wand.fx+(wand.lx-wand.fx)*t,wand.fy+(wand.ly-wand.fy)*t+Math.sin(t*Math.PI)*4,1,1)}f('#ff5a7a',wand.lx-2,wand.ly,5,3);f('#ffd23a',wand.lx-1,wand.ly-2,3,2)}}}
 const per={play:.7+rnd()*.3,cuddle:.9,lazy:.6,curious:.5+rnd()*.4},last={};
 function think(){const c=cat,n=night(),now=Date.now(),sc={},toy=(ball&&!ball.held)||(wand&&wand.on);
 sc.eat=bowl?(100-S.food)/100*1.6:(S.food<50?.2:0);sc.litter=(100-S.litter)/100*1.4;sc.sleep=((100-S.energy)/100+(n?.9:0))*per.lazy;
