@@ -30,7 +30,7 @@ const S={food:70,love:50,clean:60,litter:80,energy:80};
 const cat={x:38,fl:1,state:'idle',goal:null,timer:0,bub:0,emoji:'',cool:3,noSleep:0,ign:0,spd:.6,lk:0,bx:0,bt:0,rf:1,lastTouch:0,lastPounce:0};
 const cur={sx:1,sy:1,lean:0,hx:0,hy:0,ht:0,dy:0};
 let imgS=null,hI=0,sI=0,aiOn=true,ball=null,wand=null,wandOn=false,ballOn=false,tick=0,bowl=false,brush=false,tmode=0,ptr=null,down=false,P=[],ctx=null,item=null,EY=0,EM=0,lab='';
-const TS=['eat','litter','happy','sniff','flehmen','groom','yawn','stretch','knead','roll','startle','pounce','hold'],GOOD=['idle','walk','happy','groom','yawn','stretch'];
+const TS=['eat','litter','happy','sniff','flehmen','groom','yawn','stretch','knead','roll','startle','pounce','hold','swat'],GOOD=['idle','walk','happy','groom','yawn','stretch'];
 const YB=132,rnd=Math.random;
 // audio
 function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
@@ -47,6 +47,10 @@ const hy=Math.round(cur.hy);
 for(let r=0;r<37;r++){const h=yy(r+1)-yy(r);if(h>0)X.drawImage(img,0,r,Wd,1,-24+Math.round(ho(r)),yy(r)+hy,Wd,h)}
 const ov=(x,y,w,h,k)=>{X.fillStyle=k;for(let j=0;j<h;j++){const r=y+j,hh=yy(r+1)-yy(r);if(hh>0)X.fillRect(-24+x+Math.round(ho(r)),yy(r)+hy,w,hh)}};
 if(EY===1){ov(7,18,3,3,'#b4784a');ov(7,19,3,1,'#3a1c10')}else if(EY===2){ov(7,18,3,1,'#b4784a');ov(7,20,3,1,'#b4784a')}
+// ojos gemelos y hocico centrado para que el gato mire al jugador
+ov(15,18,3,3,'#b4784a');ov(16,19,1,2,'#3a1c10');
+ov(10,25,5,2,'#5b3024');ov(11,26,3,2,'#f3a0a0');
+ov(1,27,5,1,'#d8cdb8');ov(17,27,5,1,'#d8cdb8');
 if(EM===1){ov(2,29,7,3,'#3a1c10');ov(4,31,4,1,'#ff7a93')}else if(EM===3){ov(1,28,9,5,'#3a1c10');ov(3,31,5,2,'#ff7a93')}else if(EM===2){ov(-3,29,5,2,'#ff7a93');ov(-3,29,5,1,'#ffb0c0')}
 if(hI===1){[[15,2,1],[15,3,2],[14,4,3],[14,5,4],[13,6,5],[13,7,6],[12,8,7],[12,9,8],[11,10,9],[11,11,10]].forEach((a,i)=>ov(a[0],a[1],a[2],1,i%3==2?'#ffd23a':'#ff5a7a'));ov(14,0,3,2,'#fff')}
 else if(hI===2){ov(11,8,10,4,'#ffd23a');[11,14,17,20].forEach(x=>ov(x,6,2,2,'#ffd23a'));ov(14,9,2,2,'#d62f3f')}
@@ -101,7 +105,7 @@ case 'yawn':T.hy=-4;T.eye=1;T.mo=3;T.sy=1.03;break;
 case 'stretch':T.lean=5;T.sy=1.06;T.eye=1;T.hy=-3;break;
 case 'pounce':T.sy=.85;T.lean=-4;T.hy=8+(c.timer<11?-6:0);T.dy=c.timer<11?-Math.sin(c.timer/11*Math.PI)*9:0;T.mo=c.timer<11?1:0;break;
 case 'hold':T.sy=.84;T.sx=1.08;T.hy=12;T.hx=-4;T.eye=2;T.mo=(t>>2)&1?1:0;break;
-case 'startle':T.dy=-Math.sin(c.timer/20*Math.PI)*12;T.sy=1.04;T.mo=1;T.lean=-3;break}
+case 'startle':T.dy=-Math.sin(c.timer/20*Math.PI)*12;T.sy=1.04;T.mo=1;T.lean=-3;breakcase 'swat':T.sx=1.08;T.lean=-5;T.hx=-2;T.dy=-Math.sin((24-c.timer)/24*Math.PI)*4;T.eye=2;T.mo=1;break}
 if(c.bt>0){c.bt--;T.eye=1;T.hy=-1}
 if((s==='idle'||s==='walk')&&(t%130<4||t%420<28||Date.now()<c.ign))T.eye=1;
 return T}
@@ -129,8 +133,17 @@ else if(rn<.62){say('🙄');goto(c.x+(c.x>p.x?14:-14),null,1.6)}
 else{c.ign=Date.now()+8000;c.fl=-c.fl;c.state='idle';say('😑',90);txt(c.x-6,42,'...')}}
 function butt(p){const c=cat;if(c.state==='sleep'){pet();return}
 txt(p.x-10,p.y-6,'PLAF!');add(p.x,p.y-4,'s',-.2);beep(180,.08,.1,-80);meow();S.love=Math.max(0,S.love-2);c.state='startle';c.timer=20;say('😾',80);hud()}
+function pawTap(p){const c=cat,r=rnd();c.lastTouch=Date.now();
+if(c.state==='sleep'){say('😾',55);c.state='startle';c.timer=20;meow();return}
+if(r<.72){c.state='swat';c.timer=24;c.fl=p.x<c.x?1:-1;S.love=Math.max(0,S.love-2);say(r<.35?'😾':'🙀',65);txt(p.x-9,p.y-8,'¡ZAS!');beep(150,.09,.1,-100);meow()}
+else{c.state='startle';c.timer=20;say('😼',55);add(p.x,p.y-3,'s',-.4);beep(260,.05,.06)}
+hud()}
 function touch(h,p){const c=cat;if(c.state==='roll')return;if(Date.now()<c.ign){say('😒',40);return}
-if(h.v<37&&h.u<32&&GOOD.includes(c.state))face(p);else if(h.u>28&&h.v>48)butt(p);else pet()}
+if(h.v>=63&&(h.u<18||h.u>30)){pawTap(p);return}
+if(h.v<37&&h.u<32&&GOOD.includes(c.state))face(p);
+else if(h.u>28&&h.v>48)butt(p);
+else if(h.v>=38&&h.v<63&&h.u>=12&&h.u<=37){if(rnd()<.22){say('😻',55);purr();S.love=Math.min(100,S.love+3)}else pet()}
+else pet()}
 function callName(){ac();const c=cat;txt(4,60,'¡CULOGORDO!');say('👂',50);
 setTimeout(()=>{const q=rnd();
 if(c.state==='sleep'){if(q<.7)return;c.state='idle';c.noSleep=Date.now()+30000;say('😾');meow();return}
